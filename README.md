@@ -1,301 +1,499 @@
-[Groupon Scraper](https://apify.com/sovereigntaylor/groupon-scraper?fpr=data)
+[Groupon Scraper](https://apify.com/saswave/groupon-scraper?fpr=data)
 
-# Groupon Deals & Coupons Scraper
+## Groupon Web Scraper
 
-Scrape Groupon deals, coupons, and local offers at scale. Extract deal titles, original and discounted prices, savings percentages, merchant details, star ratings, sold counts, categories, expiration dates, fine print, and images. Export to JSON, CSV, Excel, or connect directly to your app via the Apify API.
+Extract complete product, pricing, merchant and customer-review data from Groupon marketplaces worldwide.
 
-## Features
+Works on:
 
-- **Location-based scraping** — browse deals for any US city (New York, LA, Chicago, Miami, and more)
-- **Category filtering** — filter by Things to Do, Beauty & Spas, Food & Drink, Health & Fitness, Automotive, Travel, Goods, Coupons, and more
-- **Keyword search** — search for specific deal types like "massage", "restaurant", "oil change", or "escape room"
-- **Full price extraction** — original price, deal price, discount percentage, and dollar savings
-- **Merchant intelligence** — merchant name, address, phone, website, and location
-- **Rating and reviews** — star ratings, review counts, and sold/bought counts
-- **Detail page scraping** — optionally visits each deal page for full description, fine print, highlights, redemption instructions, all images, and deal option variants
-- **Multi-source extraction** — parses JSON-LD structured data, embedded Next.js state, and raw HTML for maximum data coverage
-- **Auto-pagination** — automatically crawls through all result pages up to your limit
-- **Anti-bot protection** — User-Agent rotation, respectful rate limiting, CAPTCHA detection
-- **Proxy support** — works with Apify proxy for large-scale scrapes
-- **PPE pricing** — pay only for what you scrape ($0.004 per deal)
+groupon.com
 
-## Input Parameters
+groupon.fr
 
-| Parameter | Type | Default | Description |
-| --- | --- | --- | --- |
-| `locations` | string[] | `["new-york"]` | City slugs to scrape (e.g. `new-york`, `los-angeles`, `chicago`) |
-| `category` | enum | `"all"` | Category filter: `all`, `things-to-do`, `beauty-and-spas`, `health-and-fitness`, `food-and-drink`, `automotive`, `home-services`, `personal-services`, `retail`, `travel`, `goods`, `coupons` |
-| `searchTerms` | string[] | `[]` | Keywords to search (each triggers a separate search per location) |
-| `maxResults` | integer | `500` | Maximum total deals to scrape (1-10000) |
-| `scrapeDetails` | boolean | `true` | Visit each deal's detail page for richer data |
-| `maxConcurrency` | integer | `3` | Concurrent requests (1-10, lower = safer) |
-| `proxyConfiguration` | object | `null` | Apify proxy settings |
+groupon.co.uk
 
-### Supported Location Slugs
+groupon.de
 
-Use the city's URL-friendly slug. Common examples:
+All Groupon subdomains
 
-| City | Slug |
-| --- | --- |
-| New York | `new-york` |
-| Los Angeles | `los-angeles` |
-| Chicago | `chicago` |
-| Houston | `houston` |
-| Miami | `miami` |
-| San Francisco | `san-francisco` |
-| Seattle | `seattle` |
-| Denver | `denver` |
-| Boston | `boston` |
-| Atlanta | `atlanta` |
-| Dallas | `dallas` |
-| Phoenix | `phoenix` |
-| Philadelphia | `philadelphia` |
-| San Diego | `san-diego` |
-| Austin | `austin` |
-| Las Vegas | `las-vegas` |
-| Portland | `portland-or` |
-| Minneapolis | `minneapolis` |
-| Nashville | `nashville` |
-| Washington DC | `washington-dc` |
+Turn Groupon listings into structured e-commerce datasets.
 
-## Example Input
+## 🚀 What This Scraper Does
 
-### Browse all deals in New York
+This crawler extracts products, sellers, reviews, and suggestions from Groupon category pages, deal URLs, and search result pages.
 
-```
-{
-  "locations": ["new-york"],
-  "category": "all",
-  "maxResults": 100
-}
-```
+It supports:
 
-### Search for spa deals in multiple cities
+Category crawls
 
-```
-{
-  "locations": ["los-angeles", "san-francisco", "san-diego"],
-  "category": "beauty-and-spas",
-  "searchTerms": ["massage", "facial", "spa day"],
-  "maxResults": 500,
-  "scrapeDetails": true
-}
-```
+Product-level scraping
 
-### Food & drink deals nationwide
+Related products (suggestions)
 
-```
-{
-  "locations": ["new-york", "chicago", "miami", "houston", "atlanta"],
-  "category": "food-and-drink",
-  "maxResults": 1000
-}
-```
+Merchant info
 
-### Coupons only (no detail pages for speed)
+Customer reviews
 
-```
-{
-  "locations": ["new-york"],
-  "category": "coupons",
-  "maxResults": 200,
-  "scrapeDetails": false
-}
-```
+## ✅ Extracted Data
 
-## Output Format
+Depending on input type, you can extract:
 
-Each scraped deal produces a JSON object. The fields available depend on whether detail page scraping is enabled.
+## 🛒 Product information
 
-### Listing Data (scrapeDetails: false)
+Product name
 
-```
-{
-  "title": "60-Minute Swedish or Deep-Tissue Massage at Serenity Spa",
-  "originalPrice": 120.00,
-  "discountPrice": 59.99,
-  "discount": "50% OFF",
-  "savings": 60.01,
-  "merchant": "Serenity Spa & Wellness",
-  "rating": 4.7,
-  "reviewCount": null,
-  "soldCount": 1250,
-  "category": "Beauty & Spas",
-  "expiresAt": "Expires Mar 30, 2026",
-  "description": null,
-  "finePrint": null,
-  "merchantAddress": null,
-  "merchantPhone": null,
-  "images": ["https://img.grouponcdn.com/deal/abc123/960x576/image.jpg"],
-  "url": "https://www.groupon.com/deals/serenity-spa-massage-1",
-  "dealId": "abc-123-def-456",
-  "location": "new-york",
-  "searchTerm": "massage",
-  "searchPage": 1,
-  "dataSource": "listing",
-  "scrapedAt": "2026-03-01T12:00:00.000Z"
-}
-```
+Deal URL
 
-### Full Detail Data (scrapeDetails: true)
+Pricing (current & original)
+
+Discount %
+
+Currency
+
+Category & breadcrumb
+
+Rating
+
+Sales count
+
+Views in last 24h
+
+Images
+
+Badges (Best seller, Popular gift, etc.)
+
+Shipping info
+
+Inventory identifiers
+
+Variations / models
+
+Deal urgency messages
+
+## 🏪 Merchant data
+
+Merchant name
+
+Seller website
+
+Merchant description (when available)
+
+## ⭐ Reviews
+
+Review text
+
+Rating
+
+Date
+
+Reviewer name
+
+Reviewer profile
+
+Merchant reply (if available)
+
+Review helpfulness
+
+Redeemed date
+
+## 🔁 Suggestions
+
+Related / similar products
+
+Look-alike recommendations
+
+Alternative offers
+
+Discount comparisons
+
+## Ouput example
+
+Product from search url
 
 ```
 {
-  "title": "60-Minute Swedish or Deep-Tissue Massage at Serenity Spa",
-  "originalPrice": 120.00,
-  "discountPrice": 59.99,
-  "discount": "50% OFF",
-  "savings": 60.01,
-  "merchant": "Serenity Spa & Wellness",
-  "rating": 4.7,
-  "reviewCount": 328,
-  "soldCount": 1250,
-  "category": "Beauty & Spas",
-  "expiresAt": "Expires Mar 30, 2026",
-  "description": "Relax with a 60-minute Swedish or deep-tissue massage from a licensed therapist. Includes hot towel treatment and aromatherapy oils. Located in downtown Manhattan with convenient subway access.",
-  "finePrint": "Limit 3 per person. Valid Mon-Fri only. By appointment only. New customers only. Must present Groupon voucher upon arrival. Not valid with other offers.",
-  "highlights": [
-    "60-minute massage session",
-    "Choice of Swedish or deep-tissue",
-    "Hot towel treatment included",
-    "Licensed and certified therapists"
-  ],
-  "merchantAddress": "123 Broadway, New York, NY 10001",
-  "merchantPhone": "(212) 555-0123",
-  "merchantWebsite": "https://www.serenityspa.example.com",
-  "images": [
-    "https://img.grouponcdn.com/deal/abc123/960x576/main.jpg",
-    "https://img.grouponcdn.com/deal/abc123/960x576/interior.jpg",
-    "https://img.grouponcdn.com/deal/abc123/960x576/room.jpg"
-  ],
-  "options": [
+  "input_ref_page_url": "https://www.groupon.fr/goods/bagages",
+  "input_ref_page_number": 1,
+  "item_id": "d59aa2f0-c27f-4267-8a64-755d6579d89e",
+  "rating": 5,
+  "currency": "EUR",
+  "category": "Luggage Sets",
+  "categories_breadcrumb": "Goods > For the Home > Luggage > Luggage Sets",
+  "inventory_service_id": "goods",
+  "restricted_reason": "[]",
+  "restricted": 0,
+  "show_discount": 1,
+  "eligible_for_groupon_incentives": 1,
+  "pds_id": "39a3ab07-83f8-4b68-b187-bc7e9098ee7d",
+  "channel_id": "92868e9f-7561-4515-bd0c-653d44ab51a6",
+  "inventory_product_id": "993011aa-ac6c-4095-b3d7-fbb8c1c46c67",
+  "minimum_purchase_quantity": 1,
+  "_customer_item_id": "d59aa2f0-c27f-4267-8a64-755d6579d89e",
+  "channel": "shopping",
+  "is_bookable": 0,
+  "is_travel_bookable_deal": 0,
+  "med_image": "https://img.grouponcdn.com/deal/3Zmockwfb3UzVCr4RToaG1aZ9rPf/3Z-2048x1229/v1/t300x182.jpg",
+  "merchant_name": "Halterner Technologie GmbH",
+  "purchases_total_displayed": 229,
+  "url": "https://www.groupon.fr/deals/ensemble-valises-rigides-abs-1",
+  "views_24h": 85,
+  "title": "Ensemble de valises rigides en ABS, coloris au choix, livraison offerte",
+  "models": [
     {
-      "title": "60-Minute Swedish Massage",
-      "discountPrice": 59.99,
-      "originalPrice": 120.00,
-      "discount": "50% OFF"
+      "title": "Ensemble de valises rigides en ABS : Gris et marron",
+      "discount_percent": 55,
+      "current_price": 12000,
+      "original_price": 26549
     },
     {
-      "title": "90-Minute Deep-Tissue Massage",
-      "discountPrice": 89.99,
-      "originalPrice": 180.00,
-      "discount": "50% OFF"
+      "title": "Ensemble de valises rigides en ABS : Crème",
+      "discount_percent": 55,
+      "current_price": 12000,
+      "original_price": 26549
+    },
+    {
+      "title": "Ensemble de valises rigides en ABS : Noir et marron",
+      "discount_percent": 55,
+      "current_price": 12000,
+      "original_price": 26549
     }
-  ],
-  "redemptionInstructions": "Present your Groupon voucher at the front desk. Must book appointment 24 hours in advance by calling (212) 555-0123.",
-  "url": "https://www.groupon.com/deals/serenity-spa-massage-1",
-  "dealId": "abc-123-def-456",
-  "location": "new-york",
-  "dataSource": "detail",
-  "scrapedAt": "2026-03-01T12:00:00.000Z"
+  ]
 }
 ```
 
-## Output Fields Reference
-
-| Field | Type | Description |
-| --- | --- | --- |
-| `title` | string | Deal headline / title |
-| `originalPrice` | number | Regular retail price (before discount) |
-| `discountPrice` | number | Groupon deal price |
-| `discount` | string | Discount percentage (e.g. "50% OFF") |
-| `savings` | number | Dollar amount saved |
-| `merchant` | string | Business/merchant name |
-| `rating` | number | Star rating (1-5 scale) |
-| `reviewCount` | number | Number of reviews |
-| `soldCount` | number | Number of vouchers sold/bought |
-| `category` | string | Deal category |
-| `expiresAt` | string | Expiration date/text |
-| `description` | string | Full deal description (detail page only) |
-| `finePrint` | string | Terms, conditions, and restrictions (detail page only) |
-| `highlights` | string[] | Key deal highlights (detail page only) |
-| `merchantAddress` | string | Business street address (detail page only) |
-| `merchantPhone` | string | Business phone number (detail page only) |
-| `merchantWebsite` | string | Business website URL (detail page only) |
-| `images` | string[] | Deal image URLs |
-| `options` | object[] | Deal variants/options with individual prices (detail page only) |
-| `redemptionInstructions` | string | How to redeem the voucher (detail page only) |
-| `url` | string | Direct link to the Groupon deal page |
-| `dealId` | string | Groupon's internal deal ID |
-| `location` | string | City slug used for the search |
-| `dataSource` | string | `listing`, `detail`, or `listing-fallback` |
-| `scrapedAt` | string | ISO 8601 timestamp of when the deal was scraped |
-
-## Use Cases
-
-### Deal Aggregation & Comparison
-
-Build a coupon/deal aggregation service by scraping Groupon deals across multiple cities and categories. Compare similar deals across locations to find the best prices.
-
-### Local Business Intelligence
-
-Monitor local business deals and pricing strategies. Track how often merchants offer deals, their discount depths, sold counts, and rating trends over time.
-
-### Competitor Analysis for Local Businesses
-
-If you run a spa, restaurant, or fitness studio, monitor what competitors are offering on Groupon — their prices, discounts, and customer ratings.
-
-### Price Monitoring & Alerts
-
-Run the scraper on a schedule (daily/weekly) to track deal prices. Set up alerts when specific types of deals drop below a threshold price.
-
-### Market Research
-
-Analyze which deal categories are most popular in different cities. Understand seasonal trends, pricing patterns, and consumer demand signals.
-
-### Lead Generation
-
-Extract merchant contact information (address, phone, website) for local business outreach and B2B marketing campaigns.
-
-### Content Creation
-
-Use deal data to power "best deals" articles, newsletters, or social media content about local offers and savings opportunities.
-
-## Tips for Best Results
-
-1. **Use proxies for large scrapes** — Groupon may block IPs that make too many requests. Enable Apify proxy configuration for scrapes over 100 deals.
-2. **Keep concurrency at 3 or below** — Groupon is more aggressive about rate limiting than most sites. Start with concurrency 2-3.
-3. **Enable detail scraping for rich data** — Set `scrapeDetails: true` to get full descriptions, fine print, merchant contact info, and all images. This is slower but provides much richer data.
-4. **Disable detail scraping for speed** — Set `scrapeDetails: false` if you only need titles, prices, and basic info. This is much faster for large-scale price monitoring.
-5. **Use specific search terms** — Targeted searches like "oil change" or "teeth whitening" yield more relevant results than broad category browsing.
-6. **Scrape multiple locations in one run** — Pass an array of location slugs to compare deals across cities efficiently.
-7. **Schedule recurring runs** — Use Apify Scheduler to run the scraper daily or weekly for ongoing deal monitoring and price tracking.
-8. **Check the data source field** — The `dataSource` field tells you whether data came from a listing page, detail page, or a fallback (when the detail page failed). Detail pages have the richest data.
-
-## Legal Disclaimer
-
-This scraper is provided for educational and research purposes. Users are responsible for complying with Groupon's Terms of Service and all applicable laws regarding web scraping and data usage. Always respect robots.txt and rate limits.
-
-## Support
-
-If you encounter issues or have feature requests, please open an issue on the GitHub repository or contact us through the Apify platform.
-
-## Integration — Python
+Product from input
 
 ```
-from apify_client import ApifyClient
-
-client = ApifyClient("YOUR_API_TOKEN")
-run = client.actor("sovereigntaylor/groupon-scraper").call(run_input={
-    "searchTerm": "groupon",
-    "maxResults": 50
-})
-
-for item in client.dataset(run["defaultDatasetId"]).iterate_items():
-    print(f"{item.get('title', item.get('name', 'N/A'))}")
+{
+  "title": "Livre photo classique en format A3 horizontal de 28 à 140 pages, avec Colorland (jusqu'à 65% de réduction)",
+  "rating": "4.5",
+  "reviews": "1,592",
+  "original_price": "49,99 €",
+  "current_price": "27,95 €",
+  "discount_message": "44% de réduction",
+  "sold_message": "460+ acheteurs",
+  "variations": {
+    "la_quantité_de_pages": [
+      "livraison non comprise - 28 pages",
+      "livraison non comprise - 40 pages",
+      "livraison non comprise - 60 pages",
+      "livraison non comprise - 100 pages",
+      "livraison non comprise - 120 pages"
+    ],
+    "la_quantité_de_livres": [
+      "x 1",
+      "x 2"
+    ]
+  },
+  "shipping": "",
+  "badges": [
+    "100+ vendus",
+    "Cadeau populaire",
+    "Meilleure note"
+  ],
+  "urgency_message": "Plus de 60 vues aujourd'hui, alors achetez dès maintenant !",
+  "images": [
+    "https://img.grouponcdn.com/deal/2xA3w3jYPiaaoCDzseLiA5XnDeZS/2x-1200x720/v1/sc100x100.webp",
+    "https://img.grouponcdn.com/deal/32kNdAnkZ74EHhquLBkN1G5T5WUn/32-1200x720/v1/sc100x100.webp",
+    "https://img.grouponcdn.com/deal/YSfq7jM8emxqKw1zsoNvjWvJDst/YS-1200x720/v1/sc100x100.webp",
+    "https://img.grouponcdn.com/deal/2CYGA3UQeLr4ozVxHsTr3jpJhKr8/2C-1200x720/v1/sc100x100.webp",
+    "https://img.grouponcdn.com/deal/33fq8hs8GqWzKPGbfqLqvkERxcKe/33-1200x720/v1/sc100x100.webp",
+    "https://img.grouponcdn.com/deal/HoxhFGuGaWWkV7z1kN2QHbwLsyA/Ho-1200x720/v1/sc100x100.webp",
+    "https://img.grouponcdn.com/deal/35qjtgUfVzoVPSx6XVPqUQXQfdN1/35-1200x720/v1/sc100x100.webp"
+  ],
+  "highlights": [
+    "Points forts",
+    "Créer son propre livre photo entièrement personnalisable avec une couverture rigide ou souple"
+  ],
+  "about": [
+    "À propos de ce deal",
+    "Après avoir acheté ce deal, vous devriez visiter le site Web indiqué sur votre coupon pour compléter votre achat.",
+    "Ce qui est inclus : 1 ou 2 livres photos à personnaliser sur le site Colorland",
+    "Ce qui est inclus",
+    ": 1 ou 2 livres photos à personnaliser sur le site Colorland",
+    "Format : A3",
+    "Nombre de pages possibles : 28, 40, 60, 100 ou 120",
+    "Comment utiliser votre coupon",
+    "1. Après l'achat, rendez-vous sur votre espace personnel Groupon / Mes commandes.",
+    "2. Cliquez sur \"Voir les détails\".",
+    "3. Cliquez sur le bouton bleu Reedem Online  / Utilisez le coupon. Vous serez redirigé vers le site de Colorland.",
+    "4.Connectez-vous à votre espace client ou créez votre compte Colorland. Votre code s'enregistre automatiquement dans le panier dans l’onglet « Codes promo ».",
+    "5. Cliquez sur le bouton jaune \"Créez votre produit\" et commencez votre création en cliquant sur \"Créez\".",
+    "6. Une fois terminée, dans le panier, insérez votre code. Vous le trouverez en gras dans l’onglet «  Codes promo ».\nCopiez / Collez le code dans le champ « Avez-vous le code de réduction? ».",
+    "7. Complétez vos informations puis procédez au règlement des frais de port.",
+    "SAV :",
+    "après votre commande en cas de questions, contactez le vendeur par mail à",
+    "info.fr@colorland.com",
+    "en ajoutant votre coupon en pièce jointe ou par téléphone au 04 26 99 00 96."
+  ],
+  "fine_print": [
+    "Conditions",
+    "Validité :",
+    "dès la réception de votre coupon, vous avez 3 mois après la date d'achat pour valider votre commande en ligne sur le site de",
+    "Colorland",
+    ".",
+    "Livraison :",
+    "sous 10 jours ouvrés en France métropolitaine (hors DOM-TOM et Corse) après validation de votre commande. Frais de port en sus : 8,95 € pour 1 livre, 9,95 € pour 2 livres.",
+    "Autres conditions :",
+    "plusieurs coupons par personne peuvent être achetés et échangés. Une fois l'achat effectué sur le site du vendeur aucune annulation ne sera possible. Valide uniquement pour l'option achetée.",
+    "Voir la",
+    "Politique de retour de Groupon France SAS",
+    "Comment ça marche",
+    "1. Après l'achat, rendez-vous sur votre espace personnel Groupon / Mes commandes.",
+    "2. Cliquez sur \"Voir les détails\".",
+    "3. Cliquez sur le bouton bleu \"Redeem Online\"  / Utilisez le coupon. Vous serez redirigé vers le site de Colorland.",
+    "4.Connectez-vous à votre espace client ou créez votre compte Colorland. Votre code s'enregistre automatiquement dans le panier dans l’onglet \"Codes promo\".",
+    "5. Cliquez sur le bouton jaune \"Créez votre produit\" et commencez votre création en cliquant sur \"Créez\".",
+    "6. Une fois terminée, dans le panier, insérez votre code. Vous le trouverez en gras dans l’onglet \"Codes promo\". \nCopiez / Collez le code dans le champ \"Avez-vous le code de réduction ?\".",
+    "7. Complétez vos informations puis procédez au règlement des frais de port.",
+    "SAV :",
+    "après votre commande en cas de questions, contactez le vendeur par mail à",
+    "info.fr@colorland.com",
+    "en ajoutant votre coupon en pièce jointe ou par téléphone au 04 26 99 00 96."
+  ],
+  "promo_message": [
+    "2.8 € de réduction",
+    "Code ",
+    "PROMO",
+    ". Expire le 17/3."
+  ],
+  "merchant_name": "Colorland",
+  "merchant_about": {
+    "merchant_website": "https://www.colorland.com/fr/"
+  },
+  "input_ref_page_url": "https://www.groupon.fr/deals/colorland-1148",
+  "input_ref_page_number": ""
+}
 ```
 
-## Integration — JavaScript
+Product suggestions
 
 ```
-import { ApifyClient } from 'apify-client';
-const client = new ApifyClient({ token: 'YOUR_API_TOKEN' });
-
-const run = await client.actor('sovereigntaylor/groupon-scraper').call({
-    searchTerm: 'groupon',
-    maxResults: 50
-});
-
-const { items } = await client.dataset(run.defaultDatasetId).listItems();
-items.forEach(item => console.log(item.title || item.name || 'N/A'));
+{
+  "input_ref_page_url": "https://www.groupon.fr/deals/colorland-1148",
+  "input_ref_page_number": "",
+  "item_id": "69224453-f984-4d21-aa5d-c8d1c377fe7e",
+  "rating": 0.23890755898000254,
+  "currency": "EUR",
+  "category": "",
+  "categories_breadcrumb": "",
+  "inventory_service_id": "vis",
+  "restricted_reason": "[]",
+  "restricted": 0,
+  "show_discount": 1,
+  "eligible_for_groupon_incentives": 1,
+  "pds_id": "e45f6c29-3d46-46f7-864a-ee45d08b0097",
+  "channel_id": "2064915a-347c-410d-a18a-76556d5540fe",
+  "inventory_product_id": "a1d5513f-a6cd-4f70-bd54-9f1db44ad1a9",
+  "minimum_purchase_quantity": 1,
+  "_customer_item_id": "69224453-f984-4d21-aa5d-c8d1c377fe7e",
+  "channel": "local",
+  "is_bookable": 0,
+  "is_travel_bookable_deal": 0,
+  "med_image": "https://img.grouponcdn.com/deal/2FwmvaEJJyap7kMzk3UmAnqXK5bb/2F-1500x900/v1/t300x182.jpg",
+  "merchant_name": "Printerpix FR",
+  "purchases_total_displayed": 244,
+  "url": "https://www.groupon.fr/deals/printerpix-fr-1-7648301",
+  "views_24h": 4,
+  "title": "Immortalisez vos souvenirs : livre(s) photo Printerpix A4 ou A5 de 30, 50 ou 100 pages (jusqu'à 87% de remise)",
+  "models": [
+    {
+      "title": "Livraison non comprise - 1 livre photo A4 à couverture rigide de 100 pages",
+      "discount_percent": 82,
+      "current_price": 2499,
+      "original_price": 13995
+    },
+    {
+      "title": "Livraison non comprise - 3 livres photo A4 à couverture rigide de 30 pages",
+      "discount_percent": 82,
+      "current_price": 3499,
+      "original_price": 19485
+    },
+    {
+      "title": "Livraison non comprise - 2 livres photo A5 à couverture rigide de 50 pages",
+      "discount_percent": 85,
+      "current_price": 1999,
+      "original_price": 12990
+    },
+    {
+      "title": "Livraison non comprise - 1 livre photo A5 à couverture rigide de 100 pages",
+      "discount_percent": 87,
+      "current_price": 1499,
+      "original_price": 11495
+    },
+    {
+      "title": "Livraison non comprise - 3 livres photo A5 à couverture rigide de 30 pages",
+      "discount_percent": 84,
+      "current_price": 2099,
+      "original_price": 13485
+    },
+    {
+      "title": "Livraison non comprise - 2 livres photo A4 à couverture rigide de 100 pages",
+      "discount_percent": 82,
+      "current_price": 4999,
+      "original_price": 27990
+    },
+    {
+      "title": "Livraison non comprise - 3 livres photo A4 à couverture rigide de 100 pages",
+      "discount_percent": 82,
+      "current_price": 7399,
+      "original_price": 41985
+    },
+    {
+      "title": "Livraison non comprise - 1 livre photo A4 à couverture rigide de 30 pages",
+      "discount_percent": 82,
+      "current_price": 1199,
+      "original_price": 6495
+    },
+    {
+      "title": "Livraison non comprise - 1 livre photo A4 à couverture rigide de 50 pages",
+      "discount_percent": 82,
+      "current_price": 1699,
+      "original_price": 9495
+    },
+    {
+      "title": "Livraison non comprise - 1 livre photo A5 à couverture rigide de 30 pages",
+      "discount_percent": 84,
+      "current_price": 699,
+      "original_price": 4495
+    },
+    {
+      "title": "Livraison non comprise - 2 livres photo A5 à couverture rigide de 30 pages",
+      "discount_percent": 84,
+      "current_price": 1399,
+      "original_price": 8990
+    },
+    {
+      "title": "Livraison non comprise - 2 livres photo A4 à couverture rigide de 50 pages",
+      "discount_percent": 83,
+      "current_price": 3299,
+      "original_price": 18890
+    },
+    {
+      "title": "Livraison non comprise - 2 livres photo A4 à couverture rigide de 30 pages",
+      "discount_percent": 82,
+      "current_price": 2299,
+      "original_price": 12990
+    },
+    {
+      "title": "Livraison non comprise - 3 livres photo A4 à couverture rigide de 50 pages",
+      "discount_percent": 82,
+      "current_price": 4999,
+      "original_price": 28485
+    },
+    {
+      "title": "Livraison non comprise - 1 livre photo A5 à couverture rigide de 50 pages",
+      "discount_percent": 85,
+      "current_price": 999,
+      "original_price": 6495
+    },
+    {
+      "title": "Livraison non comprise - 3 livres photo A5 à couverture rigide de 50 pages",
+      "discount_percent": 85,
+      "current_price": 2999,
+      "original_price": 19485
+    }
+  ],
+  "suggestion_type": "lookalike"
+}
 ```
+
+Reviews
+
+```
+{
+  "collapseText": true,
+  "createdDate": "il y a 3 jours",
+  "id": "175569ac-002c-11f0-9f54-0642ef71a6b3",
+  "isLiked": null,
+  "likeCount": null,
+  "merchantName": "Colorland",
+  "merchantReply": null,
+  "rating": 5,
+  "redeemedAt": "Utilisé : il y a 4 jours",
+  "reviewText": "Bon rapport Qualité / prix",
+  "starIcons": [
+    "full-star",
+    "full-star",
+    "full-star",
+    "full-star",
+    "full-star"
+  ],
+  "user": {
+    "initials": "M",
+    "maskedName": "Marite",
+    "profileId": "58c890c7-19ca-11e9-833d-a0369f58f9f0",
+    "stats": {
+      "reviewCount": 28,
+      "helpfulCount": 1,
+      "imageCount": 0,
+      "ratingCount": 36,
+      "badges": [
+        {
+          "badgeText": "Top contributeur",
+          "tooltip": false
+        }
+      ]
+    },
+    "wroteReviewForText": null
+  },
+  "input_ref_page_url": "https://www.groupon.fr/deals/colorland-1148",
+  "input_ref_page_number": ""
+}
+```
+
+## 🎯 Use Cases
+
+Price monitoring
+
+Product intelligence
+
+Competitor tracking
+
+Review sentiment analysis
+
+Merchant research
+
+Deal comparison engines
+
+Affiliate marketing tools
+
+E-commerce analytics
+
+Drop-shipping research
+
+Market trend analysis
+
+## ⚠ Limitations & Notes
+
+Data varies by country
+
+Listings may differ based on location
+
+Some sellers hide analytics
+
+Availability may change in real time
+
+Deals may expire or be restricted
+
+## ✅ Best Practices
+
+Use direct product URLs when possible
+
+Category URLs return multiple products
+
+Monitor expiration fields
+
+Save merchant keys for deduplication
+
+Normalize prices into cents
+
+Track discounts over time for trend analysis
+
+## 🛟 SUPPORT
+
+Share your runs with the developer team and create issues on error to help us improve actor quality.
+
+You might discover edge case we didn't test yet
+
+We stay available anytime
