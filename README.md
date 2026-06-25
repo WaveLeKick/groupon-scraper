@@ -1,112 +1,301 @@
-[Groupon Scraper](https://apify.com/santamaria-automations/groupon-scraper?fpr=data)
+[Groupon Scraper](https://apify.com/sovereigntaylor/groupon-scraper?fpr=data)
 
-# Groupon Deal Scraper — International
+# Groupon Deals & Coupons Scraper
 
-Scrapes deals from Groupon across **12 countries**: DE, US, UK, FR, IT, ES, NL, BE, AT, PL, AU, IE.
+Scrape Groupon deals, coupons, and local offers at scale. Extract deal titles, original and discounted prices, savings percentages, merchant details, star ratings, sold counts, categories, expiration dates, fine print, and images. Export to JSON, CSV, Excel, or connect directly to your app via the Apify API.
 
-## How it works
+## Features
 
-1. Loads Groupon browse pages which contain `__NEXT_DATA__` with the full Apollo GraphQL cache
-2. Extracts deal cards (9 per page) from the SSR data — no browser needed
-3. **Category fan-out**: Discovers category sub-pages and loads each one to collect ~80 unique deals per city
-4. Deduplicates by UUID across categories
-5. Optionally fetches detail pages for full descriptions, options, locations, and reviews
+- **Location-based scraping** — browse deals for any US city (New York, LA, Chicago, Miami, and more)
+- **Category filtering** — filter by Things to Do, Beauty & Spas, Food & Drink, Health & Fitness, Automotive, Travel, Goods, Coupons, and more
+- **Keyword search** — search for specific deal types like "massage", "restaurant", "oil change", or "escape room"
+- **Full price extraction** — original price, deal price, discount percentage, and dollar savings
+- **Merchant intelligence** — merchant name, address, phone, website, and location
+- **Rating and reviews** — star ratings, review counts, and sold/bought counts
+- **Detail page scraping** — optionally visits each deal page for full description, fine print, highlights, redemption instructions, all images, and deal option variants
+- **Multi-source extraction** — parses JSON-LD structured data, embedded Next.js state, and raw HTML for maximum data coverage
+- **Auto-pagination** — automatically crawls through all result pages up to your limit
+- **Anti-bot protection** — User-Agent rotation, respectful rate limiting, CAPTCHA detection
+- **Proxy support** — works with Apify proxy for large-scale scrapes
+- **PPE pricing** — pay only for what you scrape ($0.004 per deal)
 
-## Use with AI Agents (MCP)
-
-Connect this actor to any MCP-compatible AI client — Claude Desktop, Claude.ai, Cursor, VS Code, LangChain, LlamaIndex, or custom agents.
-
-**Apify MCP server URL:**
-
-```
-https://mcp.apify.com?tools=santamaria-automations/groupon-scraper
-```
-
-**Example prompt once connected:**
-
-> "Use `groupon-scraper` to scrape company data from groupon. Return results as a table."
-
-Clients that support dynamic tool discovery (Claude.ai, VS Code) will receive the full input schema automatically via `add-actor`.
-
-## Input
+## Input Parameters
 
 | Parameter | Type | Default | Description |
 | --- | --- | --- | --- |
-| `country` | enum | `DE` | Country code (DE, US, UK, FR, IT, ES, NL, BE, AT, PL, AU, IE) |
-| `city` | string | `berlin` | City name for URL path |
-| `category` | string | `""` | Optional category slug filter |
-| `query` | string | `""` | Optional search keyword (overrides browse) |
-| `maxResults` | integer | `100` | Max deals to return |
-| `includeDetails` | boolean | `false` | Fetch detail pages for full data |
-| `proxyConfiguration` | object | Apify proxy | Proxy settings |
+| `locations` | string[] | `["new-york"]` | City slugs to scrape (e.g. `new-york`, `los-angeles`, `chicago`) |
+| `category` | enum | `"all"` | Category filter: `all`, `things-to-do`, `beauty-and-spas`, `health-and-fitness`, `food-and-drink`, `automotive`, `home-services`, `personal-services`, `retail`, `travel`, `goods`, `coupons` |
+| `searchTerms` | string[] | `[]` | Keywords to search (each triggers a separate search per location) |
+| `maxResults` | integer | `500` | Maximum total deals to scrape (1-10000) |
+| `scrapeDetails` | boolean | `true` | Visit each deal's detail page for richer data |
+| `maxConcurrency` | integer | `3` | Concurrent requests (1-10, lower = safer) |
+| `proxyConfiguration` | object | `null` | Apify proxy settings |
 
-## Output fields
+### Supported Location Slugs
 
-### SERP (always available)
+Use the city's URL-friendly slug. Common examples:
 
-`title`, `deal_url`, `deal_id`, `deal_slug`, `merchant_name`, `merchant_rating`, `merchant_rating_count`, `price`, `original_price`, `currency`, `discount_percent`, `location_name`, `location_address`, `latitude`, `longitude`, `locations_total`, `image_url`, `category`
+| City | Slug |
+| --- | --- |
+| New York | `new-york` |
+| Los Angeles | `los-angeles` |
+| Chicago | `chicago` |
+| Houston | `houston` |
+| Miami | `miami` |
+| San Francisco | `san-francisco` |
+| Seattle | `seattle` |
+| Denver | `denver` |
+| Boston | `boston` |
+| Atlanta | `atlanta` |
+| Dallas | `dallas` |
+| Phoenix | `phoenix` |
+| Philadelphia | `philadelphia` |
+| San Diego | `san-diego` |
+| Austin | `austin` |
+| Las Vegas | `las-vegas` |
+| Portland | `portland-or` |
+| Minneapolis | `minneapolis` |
+| Nashville | `nashville` |
+| Washington DC | `washington-dc` |
 
-### Detail (with `includeDetails: true`)
+## Example Input
 
-`description`, `highlights`, `fine_print`, `sold_quantity`, `expiry_date`, `merchant_website`, `merchant_phone`, `merchant_address`, `opening_hours`, `review_rating`, `review_count`, `options[]`, `locations[]`
+### Browse all deals in New York
 
-## Performance
+```
+{
+  "locations": ["new-york"],
+  "category": "all",
+  "maxResults": 100
+}
+```
 
-- **HTTP-only** — CheerioCrawler, ~128MB RAM
-- **~80 deals per city** via category fan-out (no API calls needed)
-- Datacenter proxy works fine
+### Search for spa deals in multiple cities
 
-## Enrichment add-ons
+```
+{
+  "locations": ["los-angeles", "san-francisco", "san-diego"],
+  "category": "beauty-and-spas",
+  "searchTerms": ["massage", "facial", "spa day"],
+  "maxResults": 500,
+  "scrapeDetails": true
+}
+```
 
-After the scrape completes, this actor can automatically trigger AI-powered extraction on every merchant website found in the results. Each add-on runs as a separate actor and produces its own dataset.
+### Food & drink deals nationwide
 
-### Contact extraction
+```
+{
+  "locations": ["new-york", "chicago", "miami", "houston", "atlanta"],
+  "category": "food-and-drink",
+  "maxResults": 1000
+}
+```
 
-Extracts team member names, email addresses, phone numbers, positions, and departments from merchant websites. Powered by the [Website Contact Extractor](https://apify.com/santamaria-automations/website-contact-extractor).
+### Coupons only (no detail pages for speed)
 
-Enable it by setting `enableContactExtraction: true` and providing at least one LLM API key. The sub-actor run ID is stored in the key-value store as `CONTACT_EXTRACTOR_RUN_ID`.
+```
+{
+  "locations": ["new-york"],
+  "category": "coupons",
+  "maxResults": 200,
+  "scrapeDetails": false
+}
+```
 
-### Job listing extraction
+## Output Format
 
-Extracts open positions, job titles, locations, departments, and career page URLs from merchant websites. Powered by the [Website Job Extractor](https://apify.com/santamaria-automations/website-job-extractor).
+Each scraped deal produces a JSON object. The fields available depend on whether detail page scraping is enabled.
 
-Enable it by setting `enableJobExtraction: true` and providing at least one LLM API key. The sub-actor run ID is stored in the key-value store as `JOB_EXTRACTOR_RUN_ID`.
+### Listing Data (scrapeDetails: false)
 
-### Browser fallback
+```
+{
+  "title": "60-Minute Swedish or Deep-Tissue Massage at Serenity Spa",
+  "originalPrice": 120.00,
+  "discountPrice": 59.99,
+  "discount": "50% OFF",
+  "savings": 60.01,
+  "merchant": "Serenity Spa & Wellness",
+  "rating": 4.7,
+  "reviewCount": null,
+  "soldCount": 1250,
+  "category": "Beauty & Spas",
+  "expiresAt": "Expires Mar 30, 2026",
+  "description": null,
+  "finePrint": null,
+  "merchantAddress": null,
+  "merchantPhone": null,
+  "images": ["https://img.grouponcdn.com/deal/abc123/960x576/image.jpg"],
+  "url": "https://www.groupon.com/deals/serenity-spa-massage-1",
+  "dealId": "abc-123-def-456",
+  "location": "new-york",
+  "searchTerm": "massage",
+  "searchPage": 1,
+  "dataSource": "listing",
+  "scrapedAt": "2026-03-01T12:00:00.000Z"
+}
+```
 
-Some websites are built with JavaScript frameworks (React, Vue, Angular) that require a full browser to render. When `enableBrowserFallback` is set to `true`, the contact/job extractors will automatically re-scrape these sites with Playwright. This catches ~25% more sites but increases cost and runtime. Only applies when contact or job extraction is enabled.
+### Full Detail Data (scrapeDetails: true)
 
-### LLM API keys
+```
+{
+  "title": "60-Minute Swedish or Deep-Tissue Massage at Serenity Spa",
+  "originalPrice": 120.00,
+  "discountPrice": 59.99,
+  "discount": "50% OFF",
+  "savings": 60.01,
+  "merchant": "Serenity Spa & Wellness",
+  "rating": 4.7,
+  "reviewCount": 328,
+  "soldCount": 1250,
+  "category": "Beauty & Spas",
+  "expiresAt": "Expires Mar 30, 2026",
+  "description": "Relax with a 60-minute Swedish or deep-tissue massage from a licensed therapist. Includes hot towel treatment and aromatherapy oils. Located in downtown Manhattan with convenient subway access.",
+  "finePrint": "Limit 3 per person. Valid Mon-Fri only. By appointment only. New customers only. Must present Groupon voucher upon arrival. Not valid with other offers.",
+  "highlights": [
+    "60-minute massage session",
+    "Choice of Swedish or deep-tissue",
+    "Hot towel treatment included",
+    "Licensed and certified therapists"
+  ],
+  "merchantAddress": "123 Broadway, New York, NY 10001",
+  "merchantPhone": "(212) 555-0123",
+  "merchantWebsite": "https://www.serenityspa.example.com",
+  "images": [
+    "https://img.grouponcdn.com/deal/abc123/960x576/main.jpg",
+    "https://img.grouponcdn.com/deal/abc123/960x576/interior.jpg",
+    "https://img.grouponcdn.com/deal/abc123/960x576/room.jpg"
+  ],
+  "options": [
+    {
+      "title": "60-Minute Swedish Massage",
+      "discountPrice": 59.99,
+      "originalPrice": 120.00,
+      "discount": "50% OFF"
+    },
+    {
+      "title": "90-Minute Deep-Tissue Massage",
+      "discountPrice": 89.99,
+      "originalPrice": 180.00,
+      "discount": "50% OFF"
+    }
+  ],
+  "redemptionInstructions": "Present your Groupon voucher at the front desk. Must book appointment 24 hours in advance by calling (212) 555-0123.",
+  "url": "https://www.groupon.com/deals/serenity-spa-massage-1",
+  "dealId": "abc-123-def-456",
+  "location": "new-york",
+  "dataSource": "detail",
+  "scrapedAt": "2026-03-01T12:00:00.000Z"
+}
+```
 
-Both add-ons use LLMs to extract structured data. Provide one or more API keys. When multiple keys are provided, the system uses them in priority order with automatic fallback:
+## Output Fields Reference
 
-1. **Gemini** (recommended) -- Best quality-to-cost ratio. Free tier includes 1M tokens/min. Get a key at [Google AI Studio](https://aistudio.google.com/app/apikey).
-2. **Groq** (optional) -- Ultra-fast inference. Get a key at [Groq Console](https://console.groq.com/keys).
-3. **OpenRouter** (optional) -- Access to 100+ models. Get a key at [OpenRouter](https://openrouter.ai/keys).
+| Field | Type | Description |
+| --- | --- | --- |
+| `title` | string | Deal headline / title |
+| `originalPrice` | number | Regular retail price (before discount) |
+| `discountPrice` | number | Groupon deal price |
+| `discount` | string | Discount percentage (e.g. "50% OFF") |
+| `savings` | number | Dollar amount saved |
+| `merchant` | string | Business/merchant name |
+| `rating` | number | Star rating (1-5 scale) |
+| `reviewCount` | number | Number of reviews |
+| `soldCount` | number | Number of vouchers sold/bought |
+| `category` | string | Deal category |
+| `expiresAt` | string | Expiration date/text |
+| `description` | string | Full deal description (detail page only) |
+| `finePrint` | string | Terms, conditions, and restrictions (detail page only) |
+| `highlights` | string[] | Key deal highlights (detail page only) |
+| `merchantAddress` | string | Business street address (detail page only) |
+| `merchantPhone` | string | Business phone number (detail page only) |
+| `merchantWebsite` | string | Business website URL (detail page only) |
+| `images` | string[] | Deal image URLs |
+| `options` | object[] | Deal variants/options with individual prices (detail page only) |
+| `redemptionInstructions` | string | How to redeem the voucher (detail page only) |
+| `url` | string | Direct link to the Groupon deal page |
+| `dealId` | string | Groupon's internal deal ID |
+| `location` | string | City slug used for the search |
+| `dataSource` | string | `listing`, `detail`, or `listing-fallback` |
+| `scrapedAt` | string | ISO 8601 timestamp of when the deal was scraped |
 
-One key is sufficient. With multiple keys, if the primary provider hits a rate limit, the system falls back to the next available provider automatically.
+## Use Cases
 
-## Related Actors
+### Deal Aggregation & Comparison
 
-**E-Commerce & Price Comparison**
+Build a coupon/deal aggregation service by scraping Groupon deals across multiple cities and categories. Compare similar deals across locations to find the best prices.
 
-- [AutoScout24 Scraper — European car listings](https://apify.com/santamaria-automations/autoscout24-scraper)
-- [AliExpress Scraper — Global marketplace](https://apify.com/santamaria-automations/aliexpress-scraper)
-- [Galaxus.ch Scraper — Swiss electronics retailer](https://apify.com/santamaria-automations/galaxus-ch-scraper)
-- [Booking.com Scraper — Hotel listings](https://apify.com/santamaria-automations/booking-com-scraper)
+### Local Business Intelligence
 
-**Classifieds**
+Monitor local business deals and pricing strategies. Track how often merchants offer deals, their discount depths, sold counts, and rating trends over time.
 
-- [Kleinanzeigen.de Scraper — Germany](https://apify.com/santamaria-automations/kleinanzeigen-de-scraper)
-- [Willhaben.at Scraper — Austria](https://apify.com/santamaria-automations/willhaben-at-scraper)
-- [Marktplaats.nl Scraper — Netherlands](https://apify.com/santamaria-automations/marktplaats-nl-scraper)
+### Competitor Analysis for Local Businesses
 
-**Enrich your data**
+If you run a spa, restaurant, or fitness studio, monitor what competitors are offering on Groupon — their prices, discounts, and customer ratings.
 
-- [Website Email & Phone Scraper](https://apify.com/santamaria-automations/website-email-scraper)
-- [Google Maps Scraper](https://apify.com/santamaria-automations/google-maps-scraper)
-- [Website Contact Extractor](https://apify.com/santamaria-automations/website-contact-extractor)
+### Price Monitoring & Alerts
+
+Run the scraper on a schedule (daily/weekly) to track deal prices. Set up alerts when specific types of deals drop below a threshold price.
+
+### Market Research
+
+Analyze which deal categories are most popular in different cities. Understand seasonal trends, pricing patterns, and consumer demand signals.
+
+### Lead Generation
+
+Extract merchant contact information (address, phone, website) for local business outreach and B2B marketing campaigns.
+
+### Content Creation
+
+Use deal data to power "best deals" articles, newsletters, or social media content about local offers and savings opportunities.
+
+## Tips for Best Results
+
+1. **Use proxies for large scrapes** — Groupon may block IPs that make too many requests. Enable Apify proxy configuration for scrapes over 100 deals.
+2. **Keep concurrency at 3 or below** — Groupon is more aggressive about rate limiting than most sites. Start with concurrency 2-3.
+3. **Enable detail scraping for rich data** — Set `scrapeDetails: true` to get full descriptions, fine print, merchant contact info, and all images. This is slower but provides much richer data.
+4. **Disable detail scraping for speed** — Set `scrapeDetails: false` if you only need titles, prices, and basic info. This is much faster for large-scale price monitoring.
+5. **Use specific search terms** — Targeted searches like "oil change" or "teeth whitening" yield more relevant results than broad category browsing.
+6. **Scrape multiple locations in one run** — Pass an array of location slugs to compare deals across cities efficiently.
+7. **Schedule recurring runs** — Use Apify Scheduler to run the scraper daily or weekly for ongoing deal monitoring and price tracking.
+8. **Check the data source field** — The `dataSource` field tells you whether data came from a listing page, detail page, or a fallback (when the detail page failed). Detail pages have the richest data.
+
+## Legal Disclaimer
+
+This scraper is provided for educational and research purposes. Users are responsible for complying with Groupon's Terms of Service and all applicable laws regarding web scraping and data usage. Always respect robots.txt and rate limits.
 
 ## Support
 
-Found a bug or have a feature request? [Open an issue](https://console.apify.com/actors/pj5yPSeJ0AyNzXjfj/issues).
+If you encounter issues or have feature requests, please open an issue on the GitHub repository or contact us through the Apify platform.
+
+## Integration — Python
+
+```
+from apify_client import ApifyClient
+
+client = ApifyClient("YOUR_API_TOKEN")
+run = client.actor("sovereigntaylor/groupon-scraper").call(run_input={
+    "searchTerm": "groupon",
+    "maxResults": 50
+})
+
+for item in client.dataset(run["defaultDatasetId"]).iterate_items():
+    print(f"{item.get('title', item.get('name', 'N/A'))}")
+```
+
+## Integration — JavaScript
+
+```
+import { ApifyClient } from 'apify-client';
+const client = new ApifyClient({ token: 'YOUR_API_TOKEN' });
+
+const run = await client.actor('sovereigntaylor/groupon-scraper').call({
+    searchTerm: 'groupon',
+    maxResults: 50
+});
+
+const { items } = await client.dataset(run.defaultDatasetId).listItems();
+items.forEach(item => console.log(item.title || item.name || 'N/A'));
+```
